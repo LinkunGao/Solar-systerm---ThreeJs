@@ -84,10 +84,10 @@ data.planet.forEach((planet) => {
     Earth_Orib.angle = angle;
     Earth_Orib.revolutionR = planet.revolutionR;
     Earth_Orib.position.x = planet.revolutionR;
-    Moon_Orib.position.x = 30;
+    Moon_Orib.position.x = 35;
     Moon_Orib.angle = angle;
     Moon_Orib.name = "moon";
-    Moon_Orib.revolutionR = 30;
+    Moon_Orib.revolutionR = 35;
 
     sunOrib.add(Earth_Orib);
     Earth_Orib.add(earth);
