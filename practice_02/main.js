@@ -36,14 +36,17 @@ const material = new THREE.MeshBasicMaterial({
   map: textloader.load("../assets/sun/512/sun.jpg"),
 });
 const mesh_sun = new THREE.Mesh(geometry, material);
-mesh_sun.scale.set(4, 4, 4);
+mesh_sun.scale.set(5, 5, 5);
 sunOrib.add(mesh_sun);
 solar_system.push(mesh_sun);
 
 // geometry earth
+
 const earth_Orib = new THREE.Object3D();
 earth_Orib.position.x = 150;
-
+// earth rotational radius
+const rot_earth = 150;
+circle(rot_earth);
 solar_system.push(earth_Orib);
 // 要使用法线贴图，就不能使用basic material
 const material_e = new THREE.MeshPhongMaterial({
@@ -56,13 +59,14 @@ const material_e = new THREE.MeshPhongMaterial({
   specularMap: textloader.load("../assets/earth/specular.png"),
 });
 const mesh_e = new THREE.Mesh(geometry, material_e);
+mesh_e.scale.set(1.4, 1.4, 1.4);
 sunOrib.add(earth_Orib);
 earth_Orib.add(mesh_e);
 solar_system.push(mesh_e);
 
 // moon
 const moon_Oribit = new THREE.Object3D();
-moon_Oribit.position.x = 20;
+moon_Oribit.position.x = 26;
 earth_Orib.add(moon_Oribit);
 const material_moon = new THREE.MeshPhongMaterial({
   map: textloader.load("../assets/moon/moon.jpg"),
@@ -70,7 +74,7 @@ const material_moon = new THREE.MeshPhongMaterial({
   normalScale: new THREE.Vector2(4, 4),
 });
 const mesh_moon = new THREE.Mesh(geometry, material_moon);
-mesh_moon.scale.set(0.5, 0.5, 0.5);
+mesh_moon.scale.set(0.7, 0.7, 0.7);
 moon_Oribit.add(mesh_moon);
 solar_system.push(moon_Oribit);
 
@@ -124,3 +128,22 @@ function render() {
 }
 
 render();
+
+function circle(r) {
+  // use ArcCurve to draw a curve
+  // Math.PI==180
+  const arc = new THREE.ArcCurve(0, 0, r, 0, Math.PI * 2, true);
+  // the more points the curve more smooth
+  const points = arc.getPoints(300); // it will reture a vector2 array
+  // new THREE.Geometry()不能使用了，现在用new THREE.BufferGeometry()来代替
+  const geometry_line = new THREE.BufferGeometry();
+  //setFromPoints方法的本质：遍历points把vector2转变化vector3
+  geometry_line.setFromPoints(points);
+  const material_line = new THREE.LineBasicMaterial({
+    color: 0x006666,
+  });
+  const line = new THREE.LineLoop(geometry_line, material_line);
+  // 圆弧线默认在XOY平面上，绕x轴旋转到XOZ平面上
+  line.rotateX(Math.PI / 2);
+  scene.add(line);
+}
