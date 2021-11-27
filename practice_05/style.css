@@ -1,0 +1,11 @@
+html,
+body {
+  margin: 0;
+}
+#bg {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
