@@ -48,12 +48,13 @@ controls.update();
 // 公转思路一
 const solar_system = [];
 // 公转思路二
-const planetGroup = new THREE.Group();
+// const planetGroup = new THREE.Group();
 const sunOrib = new THREE.Object3D();
 scene.add(sunOrib);
 solar_system.push(sunOrib);
 
-const sun = CREATE.createSphereMesh(data.sun.R, data.sun.URL);
+const sun = CREATE.createSphereMesh(data.sun.name, data.sun.R, data.sun.URL);
+
 sunOrib.add(sun);
 // planetGroup.add(sun);
 
@@ -66,12 +67,14 @@ data.planet.forEach((planet) => {
   if (planet.name === "Earth") {
     const Earth_Orib = new THREE.Object3D();
     const earth = CREATE.createNorSphereMesh(
+      planet.name,
       planet.R,
       planet.URL,
       planet.URL_Nor
     );
     const Moon_Orib = new THREE.Object3D();
     const moon = CREATE.createNorSphereMesh(
+      planet.moon.name,
       planet.moon.R,
       planet.moon.URL,
       planet.moon.URL_Nor
@@ -81,10 +84,10 @@ data.planet.forEach((planet) => {
     Earth_Orib.angle = angle;
     Earth_Orib.revolutionR = planet.revolutionR;
     Earth_Orib.position.x = planet.revolutionR;
-    Moon_Orib.position.x = 30;
+    Moon_Orib.position.x = 35;
     Moon_Orib.angle = angle;
     Moon_Orib.name = "moon";
-    Moon_Orib.revolutionR = 30;
+    Moon_Orib.revolutionR = 35;
 
     sunOrib.add(Earth_Orib);
     Earth_Orib.add(earth);
@@ -96,6 +99,7 @@ data.planet.forEach((planet) => {
   } else if (planet.name === "Saturn" || planet.name === "Uranus") {
     const star_Orib = new THREE.Object3D();
     const star = CREATE.createPlanetMesh(
+      planet.name,
       planet.shpere.R,
       planet.shpere.URL,
       planet.ring.r,
@@ -117,7 +121,7 @@ data.planet.forEach((planet) => {
   } else {
     const Orib = new THREE.Object3D();
 
-    const star = CREATE.createSphereMesh(planet.R, planet.URL);
+    const star = CREATE.createSphereMesh(planet.name, planet.R, planet.URL);
 
     const x = planet.revolutionR * Math.sin(angle);
     const z = planet.revolutionR * Math.cos(angle);

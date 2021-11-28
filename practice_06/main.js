@@ -2,6 +2,7 @@ import * as THREE from "../three/build/three.module.js";
 import { OrbitControls } from "../three/examples/jsm/controls/OrbitControls.js";
 import * as CREATE from "./createStar.js";
 import { getData } from "./data.js";
+import * as C_Tag from "./addTag.js";
 
 // all stars data
 const data = getData();
@@ -19,7 +20,7 @@ const scene = new THREE.Scene();
 // const far = 1500;
 
 // const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-
+// const camera = C_Tag.craeteCamera();
 // 正交投影相机
 const aspect = window.innerWidth / window.innerHeight; //窗口宽高比
 //可以根据最外围的海王星公转半径100 * 5设置改参数
@@ -34,7 +35,6 @@ const camera = new THREE.OrthographicCamera(
   1,
   1500
 );
-
 camera.position.set(500, 613, 525); //设置相机位置
 camera.lookAt(scene.position); //设置相机方向(指向的场景对象)
 
@@ -46,87 +46,103 @@ controls.update();
 // geometry sun
 // public
 // 公转思路一
-const solar_system = [];
-// 公转思路二
 const planetGroup = new THREE.Group();
-const sunOrib = new THREE.Object3D();
-scene.add(sunOrib);
-solar_system.push(sunOrib);
+// 公转思路二
+// const planetGroup = new THREE.Group();
 
-const sun = CREATE.createSphereMesh(data.sun.R, data.sun.URL);
-sunOrib.add(sun);
+const sun = CREATE.createSphereMesh(data.sun.name, data.sun.R, data.sun.URL);
+scene.add(sun);
 // planetGroup.add(sun);
+// 自定义属性
+sun.R = data.sun.R;
+const div = C_Tag.createTag(sun.name);
+sun.tag = div;
 
-solar_system.push(sun);
+scene.add(planetGroup);
+
 data.planet.forEach((planet) => {
   const line = CREATE.circle(planet.revolutionR);
   scene.add(line);
+
   // 计算角度，让每个星球的分布不同
   let angle = 2 * Math.PI * Math.random();
   if (planet.name === "Earth") {
     const Earth_Orib = new THREE.Object3D();
     const earth = CREATE.createNorSphereMesh(
+      planet.name,
       planet.R,
       planet.URL,
       planet.URL_Nor
     );
     const Moon_Orib = new THREE.Object3D();
     const moon = CREATE.createNorSphereMesh(
+      planet.moon.name,
       planet.moon.R,
       planet.moon.URL,
       planet.moon.URL_Nor
     );
 
+    const earth_tag = C_Tag.createTag(earth.name);
+    const moon_tag = C_Tag.createTag(moon.name);
+    // Earth_Orib.R = planet.R;
+    // Earth_Orib.tag = earth_tag;
+    // Moon_Orib.R = planet.moon.R;
+    // Moon_Orib.tag = moon_tag;
+    earth.R = planet.R;
+    earth.tag = earth_tag;
+    moon.R = planet.moon.R;
+    moon.tag = moon_tag;
+
     Earth_Orib.name = "earth";
     Earth_Orib.angle = angle;
     Earth_Orib.revolutionR = planet.revolutionR;
     Earth_Orib.position.x = planet.revolutionR;
-    Moon_Orib.position.x = 30;
+    Moon_Orib.position.x = 35;
     Moon_Orib.angle = angle;
     Moon_Orib.name = "moon";
-    Moon_Orib.revolutionR = 30;
+    Moon_Orib.revolutionR = 35;
 
-    sunOrib.add(Earth_Orib);
     Earth_Orib.add(earth);
     Earth_Orib.add(Moon_Orib);
     Moon_Orib.add(moon);
-
-    solar_system.push(Earth_Orib);
-    solar_system.push(Moon_Orib);
   } else if (planet.name === "Saturn" || planet.name === "Uranus") {
-    const star_Orib = new THREE.Object3D();
     const star = CREATE.createPlanetMesh(
+      planet.name,
       planet.shpere.R,
       planet.shpere.URL,
       planet.ring.r,
       planet.ring.R,
       planet.ring.URL
     );
-    // star_Orib.position.z = planet.recolutionR;
-    star_Orib.position.set(
+    star.position.set(
       planet.revolutionR * Math.sin(angle),
       0,
       planet.revolutionR * Math.cos(angle)
     );
-
-    star_Orib.angle = angle;
-    star_Orib.revolutionR = planet.revolutionR;
-    star_Orib.add(star);
-    sunOrib.add(star_Orib);
-    solar_system.push(star_Orib);
+    console.log(star.name);
+    const tag = C_Tag.createTag(star.name);
+    star.R = planet.shpere.R;
+    star.tag = tag;
+    star.angle = angle;
+    star.revolutionR = planet.revolutionR;
+    // star.add(star);
+    // sunOrib.add(star_Orib);
+    // solar_system.push(star_Orib);
+    planetGroup.add(star);
   } else {
-    const Orib = new THREE.Object3D();
-
-    const star = CREATE.createSphereMesh(planet.R, planet.URL);
+    const star = CREATE.createSphereMesh(planet.name, planet.R, planet.URL);
 
     const x = planet.revolutionR * Math.sin(angle);
     const z = planet.revolutionR * Math.cos(angle);
-    Orib.position.set(x, 0, z);
-    Orib.angle = angle;
-    Orib.revolutionR = planet.revolutionR;
-    Orib.add(star);
-    sunOrib.add(Orib);
-    solar_system.push(Orib);
+
+    const tag = C_Tag.createTag(star.name);
+    star.R = planet.R;
+    star.tag = tag;
+    star.position.set(x, 0, z);
+    star.angle = angle;
+    star.revolutionR = planet.revolutionR;
+
+    planetGroup.add(star);
   }
 });
 
@@ -159,8 +175,12 @@ function resizeRenderTosiplaySize(renderer) {
   }
   return needResize;
 }
+
 // solar_system[0].children.forEach((a) => {
-//   console.log(a.revolutionR);
+//   if (a.name === "Sun") {
+//     C_Tag.tagXYVertex(a, camera);
+//     console.log(a.geometry);
+//   }
 // });
 
 function render() {
@@ -171,14 +191,13 @@ function render() {
   }
 
   renderer.render(scene, camera);
-  // rotation
-  // this is a wrong way
-  // solar_system.forEach((star, ndx) => {
-  //   star.rotateY(0.005 * (ndx + 1));
+
+  // planet_tags.forEach((a) => {
+
   // });
-  // solar_system[0].rotateY(0.005)
-  // solar_system[0].rotateY(0.01);
-  solar_system[0].children.forEach((planet) => {
+
+  planetGroup.children.forEach((planet) => {
+    C_Tag.tagXYVertex(planet, camera);
     planet.rotateY(0.02);
     if (planet.angle) {
       if (planet.name == "earth") {
