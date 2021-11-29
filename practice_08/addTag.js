@@ -43,20 +43,28 @@ function tagXYVertex(planet, camera) {
   const v3 = new THREE.Vector3();
   //   var vertices = planet.geometry.boundingSphere;
   //   v3.copy(planet.geometry.vertices[0]); 现在已经淘汰了
+  // if (planet.type == "Group") {
+  //   const verteis = planet.children[0].geometry.attributes.position.array;
+  //   v3.x = verteis[0];
+  //   v3.y = verteis[1];
+  //   v3.z = verteis[2];
+  // } else if (planet.name === "Earth" || planet.name === "Moon") {
+  //   v3.x = planet.position.x;
+  //   v3.y = planet.position.y;
+  //   v3.z = planet.position.z;
+  // } else {
+  //   const verteis = planet.geometry.attributes.position.array;
+  //   v3.x = verteis[0];
+  //   v3.y = verteis[1];
+  //   v3.z = verteis[2];
+  // }
+
+  //   var vertices = planet.geometry.boundingSphere;
+  //   v3.copy(planet.geometry.vertices[0]); 现在已经淘汰了
   if (planet.type == "Group") {
-    const verteis = planet.children[0].geometry.attributes.position.array;
-    v3.x = verteis[0];
-    v3.y = verteis[1];
-    v3.z = verteis[2];
-  } else if (planet.name === "Earth" || planet.name === "Moon") {
-    v3.x = planet.position.x;
-    v3.y = planet.position.y;
-    v3.z = planet.position.z;
+    v3.copy(planet.up);
   } else {
-    const verteis = planet.geometry.attributes.position.array;
-    v3.x = verteis[0];
-    v3.y = verteis[1];
-    v3.z = verteis[2];
+    v3.copy(planet.up);
   }
 
   //   还需要考虑星球的缩放
@@ -74,8 +82,13 @@ function tagXYVertex(planet, camera) {
 
   //   console.log(x);
   // 设置标签纵横坐标适当偏移一定距离
-  planet.tag.style.left = x + "px";
-  planet.tag.style.top = y - 40 + "px";
+  if (planet.name === "Sun") {
+    planet.tag.style.left = x + "px";
+    planet.tag.style.top = y - 60 + "px";
+  } else {
+    planet.tag.style.left = x + "px";
+    planet.tag.style.top = y - 40 + "px";
+  }
 }
 
 export { createTag, tagXYVertex };
