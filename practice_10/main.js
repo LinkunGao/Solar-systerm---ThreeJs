@@ -1,11 +1,12 @@
 import * as THREE from "../three/build/three.module.js";
 import { OrbitControls } from "../three/examples/jsm/controls/OrbitControls.js";
 import * as CREATE from "./createStar.js";
-import { getData } from "./data.js";
+import { getData, getPlanetData } from "./data.js";
 import * as C_Tag from "./addTag.js";
 
 // all stars data
 const data = getData();
+const planetData = getPlanetData();
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector("#bg"),
@@ -52,7 +53,7 @@ const solar_system = [];
 // const planetGroup = new THREE.Group();
 const sunOrib = new THREE.Object3D();
 scene.add(sunOrib);
-solar_system.push(sunOrib);
+// solar_system.push(sunOrib);
 
 const sun = CREATE.createSphereMesh(data.sun.name, data.sun.R, data.sun.URL);
 
@@ -101,8 +102,8 @@ data.planet.forEach((planet) => {
     Earth_Orib.add(Moon_Orib);
     Moon_Orib.add(moon);
 
-    solar_system.push(Earth_Orib);
-    solar_system.push(Moon_Orib);
+    solar_system.push(earth);
+    solar_system.push(moon);
   } else if (planet.name === "Saturn" || planet.name === "Uranus") {
     const star_Orib = new THREE.Object3D();
     const star = CREATE.createPlanetMesh(
@@ -113,6 +114,8 @@ data.planet.forEach((planet) => {
       planet.ring.R,
       planet.ring.URL
     );
+
+    star_Orib.name = star.children[0].name;
     // star_Orib.position.z = planet.recolutionR;
     star_Orib.position.set(
       planet.revolutionR * Math.sin(angle),
@@ -133,6 +136,7 @@ data.planet.forEach((planet) => {
     const x = planet.revolutionR * Math.sin(angle);
     const z = planet.revolutionR * Math.cos(angle);
 
+    Orib.name = star.name;
     Orib.tag = C_Tag.createTag(star.name);
     Orib.position.set(x, 0, z);
     Orib.angle = angle;
@@ -176,6 +180,9 @@ function resizeRenderTosiplaySize(renderer) {
 //   console.log(a.revolutionR);
 // });
 
+let selectMesh = null;
+let planet_div = C_Tag.createImg();
+
 function render() {
   if (resizeRenderTosiplaySize(renderer)) {
     const canvas = renderer.domElement;
@@ -218,8 +225,53 @@ function render() {
       C_Tag.tagXYVertex(planet, camera);
     }
   });
-
   requestAnimationFrame(render);
+
+  if (selectMesh) {
+    const worldVetor = new THREE.Vector3();
+    selectMesh.getWorldPosition(worldVetor);
+    const standardVertor = worldVetor.project(camera);
+    const a = window.innerWidth / 2;
+    const b = window.innerHeight / 2;
+    const x = Math.round(standardVertor.x * a + a);
+    const y = Math.round(-standardVertor.y * b + b);
+
+    planet_div.style.left = x + "px";
+
+    if (selectMesh.name === "Sun") {
+      planet_div.style.top = y - 240 + "px";
+    } else {
+      planet_div.style.top = y - 80 + "px";
+    }
+  }
 }
 
 render();
+
+function choose(event) {
+  // planet_div.src = "";
+  planet_div.innerText = "";
+  planet_div.className = "";
+  selectMesh = null;
+
+  const Sx = event.clientX;
+  const Sy = event.clientY;
+
+  const x = (Sx / window.innerWidth) * 2 - 1;
+  const y = -(Sy / window.innerHeight) * 2 + 1;
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+
+  let intersects = raycaster.intersectObjects([sunOrib], true);
+  // let intersects = raycaster.intersectObjects(solar_system, true);
+  // console.log(intersects);
+  if (intersects.length > 0) {
+    planet_div.className = "planet_tag";
+    console.log(intersects[0].object.name);
+    planet_div.innerText = planetData[intersects[0].object.name].discription;
+    selectMesh = intersects[0].object;
+  }
+}
+
+window.addEventListener("click", choose);

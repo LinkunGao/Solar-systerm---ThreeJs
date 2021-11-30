@@ -34,7 +34,14 @@ scene.add(ambientLight);
 
 // geometry
 
+const box = new THREE.BoxGeometry(30, 30, 30);
+const loader = new THREE.TextureLoader();
 // materital
+const material = new THREE.MeshPhongMaterial({
+  map: loader.load("../assets/img/Pikachu-music.png"),
+});
+const mesh = new THREE.Mesh(box, material);
+scene.add(mesh);
 
 function resizeRenderTosiplaySize(renderer) {
   const canvas = renderer.domElement;
@@ -67,3 +74,26 @@ render();
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
 controls.update();
+
+function chooose(event) {
+  // mouse x
+  const Sx = event.clientX;
+  const Sy = event.clientY;
+  // change client screen to webGL
+  const x = (Sx / window.innerWidth) * 2 - 1;
+  const y = -(Sy / window.innerHeight) * 2 + 1;
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(new THREE.Vector2(), camera);
+
+  // get the box
+  const interects = raycaster.intersectObjects([mesh]);
+  console.log(interects);
+
+  if (interects.length > 0) {
+    interects[0].object.material.transparent = true;
+    interects[0].object.material.opacity = 0.6;
+  }
+}
+
+window.addEventListener("click", chooose);
