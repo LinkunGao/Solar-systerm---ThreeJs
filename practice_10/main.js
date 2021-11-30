@@ -52,7 +52,7 @@ const solar_system = [];
 // const planetGroup = new THREE.Group();
 const sunOrib = new THREE.Object3D();
 scene.add(sunOrib);
-solar_system.push(sunOrib);
+// solar_system.push(sunOrib);
 
 const sun = CREATE.createSphereMesh(data.sun.name, data.sun.R, data.sun.URL);
 
@@ -101,8 +101,8 @@ data.planet.forEach((planet) => {
     Earth_Orib.add(Moon_Orib);
     Moon_Orib.add(moon);
 
-    solar_system.push(Earth_Orib);
-    solar_system.push(Moon_Orib);
+    solar_system.push(earth);
+    solar_system.push(moon);
   } else if (planet.name === "Saturn" || planet.name === "Uranus") {
     const star_Orib = new THREE.Object3D();
     const star = CREATE.createPlanetMesh(
@@ -113,6 +113,8 @@ data.planet.forEach((planet) => {
       planet.ring.R,
       planet.ring.URL
     );
+
+    star_Orib.name = star.children[0].name;
     // star_Orib.position.z = planet.recolutionR;
     star_Orib.position.set(
       planet.revolutionR * Math.sin(angle),
@@ -133,6 +135,7 @@ data.planet.forEach((planet) => {
     const x = planet.revolutionR * Math.sin(angle);
     const z = planet.revolutionR * Math.cos(angle);
 
+    Orib.name = star.name;
     Orib.tag = C_Tag.createTag(star.name);
     Orib.position.set(x, 0, z);
     Orib.angle = angle;
@@ -176,6 +179,9 @@ function resizeRenderTosiplaySize(renderer) {
 //   console.log(a.revolutionR);
 // });
 
+let selectMesh = null;
+let img = C_Tag.createImg();
+
 function render() {
   if (resizeRenderTosiplaySize(renderer)) {
     const canvas = renderer.domElement;
@@ -218,8 +224,56 @@ function render() {
       C_Tag.tagXYVertex(planet, camera);
     }
   });
-
   requestAnimationFrame(render);
+
+  if (selectMesh) {
+    const worldVetor = new THREE.Vector3();
+    selectMesh.getWorldPosition(worldVetor);
+    const standardVertor = worldVetor.project(camera);
+    const a = window.innerWidth / 2;
+    const b = window.innerHeight / 2;
+    const x = Math.round(standardVertor.x * a + a);
+    const y = Math.round(-standardVertor.y * b + b);
+
+    img.style.left = x + "px";
+
+    if (selectMesh.name === "Sun") {
+      img.style.top = y - 140 + "px";
+    } else {
+      img.style.top = y - 80 + "px";
+    }
+  }
 }
 
 render();
+
+function choose(event) {
+  img.src = "";
+  img.innerText = "";
+  selectMesh = null;
+
+  const Sx = event.clientX;
+  const Sy = event.clientY;
+
+  const x = (Sx / window.innerWidth) * 2 - 1;
+  const y = -(Sy / window.innerHeight) * 2 + 1;
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+
+  let intersects = raycaster.intersectObjects([sunOrib], true);
+  // let intersects = raycaster.intersectObjects(solar_system, true);
+  // console.log(intersects);
+  if (intersects.length > 0) {
+    console.log(intersects[0].object.name);
+    if (intersects[0].object.name === "Sun") {
+      img.innerText =
+        "The Sun is the star at the center of the Solar System. It is a nearly perfect ball of hot plasma, heated to incandescence by nuclear fusion reactions in its core, radiating the energy mainly as visible light, ultraviolet light, and infrared radiation.";
+    } else {
+      img.innerText = "Hello " + intersects[0].object.name;
+    }
+    selectMesh = intersects[0].object;
+  }
+}
+
+window.addEventListener("click", choose);
