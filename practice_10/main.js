@@ -1,11 +1,12 @@
 import * as THREE from "../three/build/three.module.js";
 import { OrbitControls } from "../three/examples/jsm/controls/OrbitControls.js";
 import * as CREATE from "./createStar.js";
-import { getData } from "./data.js";
+import { getData, getPlanetData } from "./data.js";
 import * as C_Tag from "./addTag.js";
 
 // all stars data
 const data = getData();
+const planetData = getPlanetData();
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector("#bg"),
@@ -180,7 +181,7 @@ function resizeRenderTosiplaySize(renderer) {
 // });
 
 let selectMesh = null;
-let img = C_Tag.createImg();
+let planet_div = C_Tag.createImg();
 
 function render() {
   if (resizeRenderTosiplaySize(renderer)) {
@@ -235,12 +236,12 @@ function render() {
     const x = Math.round(standardVertor.x * a + a);
     const y = Math.round(-standardVertor.y * b + b);
 
-    img.style.left = x + "px";
+    planet_div.style.left = x + "px";
 
     if (selectMesh.name === "Sun") {
-      img.style.top = y - 140 + "px";
+      planet_div.style.top = y - 240 + "px";
     } else {
-      img.style.top = y - 80 + "px";
+      planet_div.style.top = y - 80 + "px";
     }
   }
 }
@@ -248,8 +249,9 @@ function render() {
 render();
 
 function choose(event) {
-  img.src = "";
-  img.innerText = "";
+  // planet_div.src = "";
+  planet_div.innerText = "";
+  planet_div.className = "";
   selectMesh = null;
 
   const Sx = event.clientX;
@@ -265,13 +267,9 @@ function choose(event) {
   // let intersects = raycaster.intersectObjects(solar_system, true);
   // console.log(intersects);
   if (intersects.length > 0) {
+    planet_div.className = "planet_tag";
     console.log(intersects[0].object.name);
-    if (intersects[0].object.name === "Sun") {
-      img.innerText =
-        "The Sun is the star at the center of the Solar System. It is a nearly perfect ball of hot plasma, heated to incandescence by nuclear fusion reactions in its core, radiating the energy mainly as visible light, ultraviolet light, and infrared radiation.";
-    } else {
-      img.innerText = "Hello " + intersects[0].object.name;
-    }
+    planet_div.innerText = planetData[intersects[0].object.name].discription;
     selectMesh = intersects[0].object;
   }
 }

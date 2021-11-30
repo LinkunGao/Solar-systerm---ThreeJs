@@ -21,14 +21,15 @@ import * as THREE from "../three/build/three.module.js";
 
 function createImg() {
   const div = document.createElement("div");
-  div.style.position = "absolute";
-  div.styledisplay = "block";
+  // div.style.position = "absolute";
+  // div.style.display = "block";
   document.body.appendChild(div);
-  const img = document.createElement("img");
-  div.appendChild(img);
-  div.style.padding = "6px 10px";
-  div.style.color = "#fff";
-  div.style.backgroundColor = "rgba(78, 212, 203,0.5)";
+  // const img = document.createElement("img");
+  // div.appendChild(img);
+  // div.style.padding = "6px 10px";
+  // div.style.color = "#fff";
+  // div.style.backgroundColor = "rgba(78, 212, 203,0.5)";
+  // div.className = "planet_tag";
   // return img;
   return div;
 }

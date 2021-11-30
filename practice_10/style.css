@@ -9,3 +9,13 @@ body {
   left: 0;
   top: 0;
 }
+.planet_tag {
+  position: absolute;
+  display: block;
+  padding: 6px 10px;
+  color: #fff;
+  /* background-color: rgba(78, 212, 203, 0.3); */
+  background-color: rgba(232, 72, 60, 0.4);
+  max-width: 300px;
+  border-radius: 7px;
+}
